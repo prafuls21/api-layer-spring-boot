@@ -41,7 +41,7 @@ public class PokemonAPI {
                 .queryParam("limit", limit);
 
         // retrieving a list of Pokemon
-        ResponseEntity<NamedApiResourceList> response = apiHandler.callAPI(
+        ResponseEntity<NamedApiResourceList> response = apiHandler.callAPIWithRetryLogic(
                 builder.toUriString(),
                 HttpMethod.GET,
                 null,

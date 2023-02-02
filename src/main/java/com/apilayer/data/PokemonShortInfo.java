@@ -1,13 +1,13 @@
 package com.apilayer.data;
 
 public class PokemonShortInfo {
-    private float id;
+    private int id;
     private String name;
     private String image;
     private String height;
     private String weight;
 
-    public float getId() {
+    public int getId() {
         return id;
     }
 
@@ -27,7 +27,7 @@ public class PokemonShortInfo {
         return weight;
     }
 
-    public void setId(float id) {
+    public void setId(int id) {
         this.id = id;
     }
 
