@@ -14,14 +14,16 @@ public class PokemonAPI {
 
     private final APIHandler apiHandler;
 
+    private final String BASE_URL = "https://pokeapi.co/api/v2/pokemon/";
+
     PokemonAPI(@Autowired APIHandler apiHandler) {
         this.apiHandler = apiHandler;
     }
 
     public Pokemon getPokemonByName(String name) {
         // retrieving a single Pokemon by name
-        ResponseEntity<Pokemon> response = apiHandler.callAPI(
-                String.format("https://pokeapi.co/api/v2/pokemon/%s", name),
+        ResponseEntity<Pokemon> response = apiHandler.callAPIOnce(
+                BASE_URL + name,
                 HttpMethod.GET,
                 null,
                 null,
@@ -36,7 +38,7 @@ public class PokemonAPI {
             int limit
     ) {
         // building the API URL with query parameters
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString("https://pokeapi.co/api/v2/pokemon/")
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(BASE_URL)
                 .queryParam("offset", offset)
                 .queryParam("limit", limit);
 

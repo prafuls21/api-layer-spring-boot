@@ -22,7 +22,60 @@ public class APIHandler {
 
     // defining a utility function
     // to perform API calls
-    public <T, R> ResponseEntity<R> callAPI(
+    public <T, R> ResponseEntity<R> callAPIOnce(
+            String apiEndpoint,
+            HttpMethod httpMethod,
+            HttpHeaders httpHeaders,
+            T requestBody,
+            Class<R> classToConvertBodyTo
+    ) {
+        // performing the request
+        return callAPI(
+                apiEndpoint,
+                httpMethod,
+                httpHeaders,
+                requestBody,
+                classToConvertBodyTo
+        );
+    }
+    @Retryable(
+            // attempting up to 10 times
+            maxAttempts = 10,
+            // with a delay of 2 seconds between attempts
+            backoff = @Backoff(delay = 2000),
+            // when the Http5xxException is raised by the method
+            retryFor = Http5xxException.class
+    )
+    public <T, R> ResponseEntity<R> callAPIWithRetryLogic(
+            String apiEndpoint,
+            HttpMethod httpMethod,
+            HttpHeaders httpHeaders,
+            T requestBody,
+            Class<R> classToConvertBodyTo
+    ) {
+        try {
+            // trying to perform the request
+            return callAPI(
+                    apiEndpoint,
+                    httpMethod,
+                    httpHeaders,
+                    requestBody,
+                    classToConvertBodyTo
+            );
+        } catch (RestClientResponseException e) {
+            // in case of a 5xx error, throwing a custom
+            // exception that triggers the retry logic
+            if (e.getStatusCode().is5xxServerError()) {
+                throw new Http5xxException(e.getMessage());
+            }
+
+            // some default behavior...
+
+            throw e;
+        }
+    }
+
+    private <T, R> ResponseEntity<R> callAPI(
             String apiEndpoint,
             HttpMethod httpMethod,
             HttpHeaders httpHeaders,
@@ -44,49 +97,6 @@ public class APIHandler {
             // logging errors when the HTTP request fails
             // or there is an error in decoding the response
             e.printStackTrace();
-
-            // other default behavior...
-            // (e.g. register the error in an APM service, ...)
-
-            throw e;
-        }
-    }
-    @Retryable(
-            // attempting up to 10 times
-            maxAttempts = 10,
-            // with a delay of 2 seconds between attempts
-            backoff = @Backoff(delay = 2000),
-            // when the Http5xxException is raised by the method
-            retryFor = Http5xxException.class
-    )
-    public <T, R> ResponseEntity<R> callAPIWithRetryLogic(
-            String url,
-            HttpMethod httpMethod,
-            HttpHeaders headers,
-            T body,
-            Class<R> classToConvert
-    ) {
-        // setting the HTTP headers and HTTP body (if present)
-        HttpEntity<T> requestEntity = new HttpEntity<>(body, headers);
-
-        try {
-            // trying to perform the request
-            return restTemplate.exchange(url, httpMethod, requestEntity, classToConvert);
-        } catch (RestClientResponseException e) {
-            // in case of a 5xx error, throwing a custom
-            // exception that triggers the retry logic
-            if (e.getStatusCode().is5xxServerError()) {
-                throw new Http5xxException(e.getMessage());
-            }
-
-            // some default behavior...
-
-            throw e;
-        } catch (RestClientException e) {
-            // logging errors when the HTTP request fails
-            // or there is an error in decoding the response
-            e.printStackTrace();
-
 
             // other default behavior...
             // (e.g. register the error in an APM service, ...)
