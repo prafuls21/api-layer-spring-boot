@@ -1,3 +1,4 @@
+https://semaphoreci.com/blog/api-layer-spring-boot
 A microservices architecture consists of several independent backend services that communicate with each other through APIs. Given the popularity of the microservices approach, chances are that your backend needs to make several API calls to receive data from and send data to other backends.
 
 Making an HTTP request to call an API takes only a few lines of code. However, you likely need to call the same API in different places. This implies repeating the same logic over and over again. Such an approach is cumbersome and leads to code duplication. Just think about when the endpoint of an API changes. In this common scenario, you will have to update the code at all points where the API is called.
